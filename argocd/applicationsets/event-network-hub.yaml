@@ -1,0 +1,44 @@
+# One Application per apps/event-network-hub/envs/<env> folder; the folder
+# name is the namespace.
+#
+# staging and production are excluded while their folders are still empty
+# (only .gitkeep): an Application for an empty folder would sync nothing
+# and show as broken. Remove the exclude when an env gets manifests, and add
+# its namespace to argocd/projects/apps.yaml.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: event-network-hub
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/BernardoJose90/Platform-Gitops.git
+        revision: main
+        directories:
+          - path: apps/event-network-hub/envs/*
+          - path: apps/event-network-hub/envs/staging
+            exclude: true
+          - path: apps/event-network-hub/envs/production
+            exclude: true
+  template:
+    metadata:
+      name: 'event-network-hub-{{ .path.basename }}'
+    spec:
+      # Hard-coded, never templated (README checklist, ApplicationSet security).
+      project: apps
+      source:
+        repoURL: https://github.com/BernardoJose90/Platform-Gitops.git
+        targetRevision: main
+        path: '{{ .path.path }}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ .path.basename }}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

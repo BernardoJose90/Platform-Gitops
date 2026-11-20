@@ -1,0 +1,23 @@
+# Keeps argocd/projects/ (AppProjects) in sync with git after bootstrap.
+# bootstrap/install.sh applies them once so the root Application can start.
+#
+# prune is off: removing a project from git must not delete it (and every
+# Application in it) automatically.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-projects
+  namespace: argocd
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/BernardoJose90/Platform-Gitops.git
+    targetRevision: main
+    path: argocd/projects
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false

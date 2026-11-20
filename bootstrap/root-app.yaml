@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/BernardoJose90/Platform-Gitops.git
+    targetRevision: main
+    path: platform/argocd
+    directory:
+      # values.yaml is Helm values for the argocd Application, not a manifest.
+      exclude: values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

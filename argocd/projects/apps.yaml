@@ -1,0 +1,20 @@
+# Application workloads. Narrower than the platform project: only this
+# repo as a source, only the app namespaces as destinations, and the only
+# cluster-scoped kind allowed is the Namespace (CreateNamespace=true).
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: apps
+  namespace: argocd
+spec:
+  description: Application workloads (apps/<app>/envs/<env>)
+  sourceRepos:
+    - https://github.com/BernardoJose90/Platform-Gitops.git
+  destinations:
+    # One entry per env folder in use. Add staging/production when their
+    # folders get manifests.
+    - namespace: development
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
