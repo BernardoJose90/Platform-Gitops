@@ -27,13 +27,13 @@ resources:
 images:
   - name: backend
     newName: 613993872109.dkr.ecr.eu-west-2.amazonaws.com/event-network-hub
-    newTag: backend-0d6eb4e916874907f186f7fdb3fdcfd71654ca9c
+    newTag: backend-580988cbd32e8e0955b5091045f956fb300046b4
   - name: web
     newName: 613993872109.dkr.ecr.eu-west-2.amazonaws.com/event-network-hub
-    newTag: web-0d6eb4e916874907f186f7fdb3fdcfd71654ca9c
+    newTag: web-580988cbd32e8e0955b5091045f956fb300046b4
   - name: gotenberg
     newName: 613993872109.dkr.ecr.eu-west-2.amazonaws.com/event-network-hub
-    newTag: gotenberg-0d6eb4e916874907f186f7fdb3fdcfd71654ca9c
+    newTag: gotenberg-580988cbd32e8e0955b5091045f956fb300046b4
 
 configMapGenerator:
   - name: backend-config
