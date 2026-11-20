@@ -1,0 +1,25 @@
+# Keeps argocd/applicationsets/ in sync with git, the same way
+# projects.yaml does for argocd/projects/.
+#
+# prune is off: removing an ApplicationSet from git must not delete it (and
+# every Application it generated, and their workloads) automatically.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-applicationsets
+  namespace: argocd
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/BernardoJose90/Platform-Gitops.git
+    targetRevision: main
+    path: argocd/applicationsets
+    directory:
+      exclude: .gitkeep
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false

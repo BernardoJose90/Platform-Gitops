@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  description: Platform add-ons and Argo CD's own self-managed config
+  sourceRepos:
+    - https://github.com/BernardoJose90/Platform-Gitops.git
+    # Argo CD's own chart (platform/argocd/argocd.yaml). Add each add-on's
+    # Helm repo here as it is introduced; anything not listed is blocked.
+    - https://argoproj.github.io/argo-helm
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'

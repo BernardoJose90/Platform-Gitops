@@ -1,0 +1,39 @@
+# Argo CD managing its own installation.
+#
+# bootstrap/install.sh installs this exact chart once; this Application then
+# adopts those resources and keeps them in sync with git. To upgrade Argo CD,
+# change targetRevision here (and CHART_VERSION in bootstrap/install.sh so a
+# rebuilt cluster starts on the same version).
+#
+# No resources-finalizer on purpose: deleting this Application must never
+# cascade-delete Argo CD itself.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  project: platform
+  sources:
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argo-cd
+      targetRevision: 10.17.0 # Argo CD v3.6.1; keep in sync with bootstrap/install.sh
+      helm:
+        releaseName: argocd # must match RELEASE_NAME in bootstrap/install.sh
+        valueFiles:
+          - $values/platform/argocd/values.yaml
+    - repoURL: https://github.com/BernardoJose90/Platform-Gitops.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      selfHeal: true
+      # Argo CD's own resources are never auto-deleted; remove leftovers by hand
+      # after reviewing them in the UI.
+      prune: false
+    syncOptions:
+      # Required when Argo CD manages itself (Argo CD declarative setup docs).
+      - ServerSideApply=true

@@ -1,0 +1,57 @@
+# event-network-hub in the development account's cluster. The folder name is
+# the namespace, and must match the Pod Identity association in
+# Terraform-platform (member-accounts/development/main.tf,
+# module.event_network_hub_pod_identity: namespace = "development").
+#
+# TODO before the first sync — values that don't exist yet:
+#   - DB_HOST and DB_SECRET_ARN below: from `terraform output` in
+#     Terraform-platform/member-accounts/development
+#     (event_network_hub_db_host, event_network_hub_db_secret_arn) after
+#     networking_enabled and eks_enabled are switched on and applied.
+#   - The three image tags: no images are built yet. Push
+#     backend-<sha>, web-<sha> and gotenberg-<sha> to the event-network-hub
+#     ECR repository (tags are immutable, so never reuse one).
+#
+# Not exposed outside the cluster yet (no Ingress): the app has no real
+# login, so a public address waits for SSO. Until then:
+#   kubectl -n development port-forward svc/web 5173:5173
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: development
+
+resources:
+  - ../../base
+
+images:
+  - name: backend
+    newName: 613993872109.dkr.ecr.eu-west-2.amazonaws.com/event-network-hub
+    newTag: backend-REPLACE_WITH_COMMIT_SHA
+  - name: web
+    newName: 613993872109.dkr.ecr.eu-west-2.amazonaws.com/event-network-hub
+    newTag: web-REPLACE_WITH_COMMIT_SHA
+  - name: gotenberg
+    newName: 613993872109.dkr.ecr.eu-west-2.amazonaws.com/event-network-hub
+    newTag: gotenberg-REPLACE_WITH_COMMIT_SHA
+
+configMapGenerator:
+  - name: backend-config
+    literals:
+      # Database: modules/rds in Terraform-platform. The password is never
+      # here: the backend reads it from the RDS-managed secret through Pod
+      # Identity, and re-reads it after rotation.
+      - DB_HOST=REPLACE_WITH_event_network_hub_db_host
+      - DB_PORT=5432
+      - DB_NAME=event_network_hub
+      - DB_USER=postgres
+      - DB_SECRET_ARN=REPLACE_WITH_event_network_hub_db_secret_arn
+      - DB_SSLMODE=require
+      # Files: modules/s3 in Terraform-platform (event_network_hub_bucket).
+      - S3_BUCKET=event-network-hub-development
+      - AWS_REGION=eu-west-2
+      # Through the port-forward above, until there is an Ingress.
+      - APP_PUBLIC_URL=http://localhost:5173
+      - LOG_LEVEL=INFO
+      - FEATURE_HELPDESK=true
+      - FEATURE_REPORTS=true
+      - FEATURE_WEBSUMMIT_THEME=true

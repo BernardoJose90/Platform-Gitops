@@ -1,0 +1,8 @@
+# Helm values for the argo-cd chart.
+#
+# Used by both bootstrap/install.sh (first install) and the argocd Application
+# in this folder (every sync after that), so the two never disagree.
+#
+# Chart defaults for now. Production items from the README checklist go here:
+# SSO via IAM Identity Center, RBAC by group, HA replicas.
+{}

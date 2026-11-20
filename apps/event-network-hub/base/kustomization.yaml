@@ -1,0 +1,30 @@
+# event-network-hub: what is the same in every environment.
+#
+# Three workloads, matching the app repo's docker-compose.yml:
+#   backend    FastAPI API. Also runs the database schema setup (init_db) at
+#              startup and the background jobs (notifications, help desk
+#              outbox) in the same process, so there is no separate worker or
+#              migrations Job.
+#   web        The frontend. Proxies /api to the backend.
+#   gotenberg  PDF conversion, with the fonts the spreadsheets use.
+#
+# The database and bucket are owned by Terraform-platform (modules/rds,
+# modules/s3), never requested here. The backend reaches them through EKS Pod
+# Identity on the event-network-hub-sa service account.
+#
+# Images: one ECR repository (event-network-hub, in infra_shared_services),
+# one tag prefix per image: backend-<sha>, web-<sha>, gotenberg-<sha>. Each
+# env's kustomization.yaml sets the registry and tags.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: event-network-hub
+    includeSelectors: false
+
+resources:
+  - serviceaccount.yaml
+  - backend.yaml
+  - web.yaml
+  - gotenberg.yaml
