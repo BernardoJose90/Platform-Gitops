@@ -8,9 +8,10 @@
 #     Terraform-platform/member-accounts/development
 #     (event_network_hub_db_host, event_network_hub_db_secret_arn) after
 #     networking_enabled and eks_enabled are switched on and applied.
-#   - The three image tags: no images are built yet. Push
-#     backend-<sha>, web-<sha> and gotenberg-<sha> to the event-network-hub
-#     ECR repository (tags are immutable, so never reuse one).
+#
+# Image tags: <image>-<full commit sha> from event-network-hub's CI, which
+# pushes all three on every merge to main. Set all three to the same commit.
+# Tags are immutable in ECR, so a tag always means the same image.
 #
 # Not exposed outside the cluster yet (no Ingress): the app has no real
 # login, so a public address waits for SSO. Until then:
@@ -26,13 +27,13 @@ resources:
 images:
   - name: backend
     newName: 613993872109.dkr.ecr.eu-west-2.amazonaws.com/event-network-hub
-    newTag: backend-REPLACE_WITH_COMMIT_SHA
+    newTag: backend-0d6eb4e916874907f186f7fdb3fdcfd71654ca9c
   - name: web
     newName: 613993872109.dkr.ecr.eu-west-2.amazonaws.com/event-network-hub
-    newTag: web-REPLACE_WITH_COMMIT_SHA
+    newTag: web-0d6eb4e916874907f186f7fdb3fdcfd71654ca9c
   - name: gotenberg
     newName: 613993872109.dkr.ecr.eu-west-2.amazonaws.com/event-network-hub
-    newTag: gotenberg-REPLACE_WITH_COMMIT_SHA
+    newTag: gotenberg-0d6eb4e916874907f186f7fdb3fdcfd71654ca9c
 
 configMapGenerator:
   - name: backend-config
